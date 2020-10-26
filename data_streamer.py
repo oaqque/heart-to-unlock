@@ -8,7 +8,7 @@ import argparse
 # For Token Generation
 from base64 import b64encode, b64decode
 from hashlib import sha256
-from urllib import quote_plus, urlencode
+from urllib.parse import quote_plus, urlencode
 from hmac import HMAC
 
 # Import Configurations
@@ -26,11 +26,14 @@ def parse_args():
     return parser.parse_args()
 
 def generate_sas_token(): 
-    """ Generates a Shared Access Signature (SAS) Token"""
+    """ Generates a Shared Access Signature (SAS) Token
+    
+    https://docs.microsoft.com/en-us/rest/api/eventhub/generate-sas-token
+    """
 
     expiry=3600
     ttl = time.time() + expiry
-    sign_key = "%s\n%d" % ((quote_plus(URI)), int(ttl))
+    sign_key = (quote_plus(URI) + '\n' + str(ttl)).encode('utf-8')
     signature = b64encode(HMAC(b64decode(KEY), sign_key, sha256).digest())
 
     rawtoken = {
@@ -61,6 +64,11 @@ def send_message(token, message):
     print(data)
     response = requests.post(url, data=data, headers=headers)
 
+def read_from_sensortag():
+    #### TEMPORARY ####
+    data = 35
+    return data
+
 if __name__ == '__main__': 
     # Parse arguments
     args = parse_args()
@@ -72,7 +80,7 @@ if __name__ == '__main__':
 
     # Get data from Sensortag at 200Hz and send a message to Azure
     while True: 
-        sens_data = read_from_sensortag() # <- WRITE THIS FUNCTION
+        sens_data = read_from_sensortag() #### <- WRITE THIS FUNCTION ####
         message = { "Acceleration": str(sens_data) }
         send_message(token, message)
         time.sleep(period)
