@@ -1,0 +1,6 @@
+''' This File Stores API Keys for Microsoft Azure '''
+
+azure_uri = 'IOT_HUB_NAME.azure-devices.net'
+azure_key = 'IOT_HUB_PRIMARY_KEY'
+device_id = 'REGISTERED_IOT_DEVICE_ID'
+policy = 'iothubowner'
