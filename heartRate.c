@@ -151,12 +151,11 @@ int convertData(int x) {
 }
 
 void send_return(int x, int y, int z) {
-    int len = sprintf(myBuff, "{%d, %d, %d}\n\r", convertData(x), convertData(y), convertData(z));
+    int len = sprintf(myBuff, "{%d, %d, %d}\n\r\0", convertData(x), convertData(y), convertData(z));
 	tcp_socket_send_str(&socket, myBuff);
-	memset(myBuff, 0, len);
+	// memset(myBuff, 0, len);
 }
 void imu_init() {
-	// getSampleFlag = 1;
     mpu_9250_sensor.configure(SENSORS_ACTIVE, MPU_9250_SENSOR_TYPE_ACC);
     SENSORS_ACTIVATE(mpu_9250_sensor);
 }
@@ -171,17 +170,13 @@ void imu_callback(void *ptr) {
 		SENSORS_DEACTIVATE(mpu_9250_sensor);
         return;
     }
-	// getSampleFlag = 1;
     counter++;
 	int val_x, val_y, val_z;
 	val_x = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_X);
 	val_y = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_Y);
 	val_z = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_ALL);
-	// SENSORS_DEACTIVATE(mpu_9250_sensor);
-	// getSampleFlag = 0;p
 	ctimer_set(&imu_timer, CLOCK_SECOND/frequency, imu_callback, NULL);
 	send_return(val_x, val_y, val_z);
-    // SENSORS_ACTIVATE(mpu_9250_sensor);
 }
 
 PROCESS_THREAD(gyro_thread, ev, data) {
