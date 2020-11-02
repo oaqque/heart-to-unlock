@@ -60,8 +60,20 @@ def get_samples(num=600, freq=200):
     normailised.append([int(split[0]) + int(split[2])])
     # retString += "["+str(int(split[0]) + int(split[2])) +"],"
     # [[v],[v],[v]]
-  return normailised
-  
+  return smooth(normailised)
+
+def smooth(data, alpha=0.2):
+  # Data = [[v],[v],[v]]
+  returnData = []
+  returnData.append(data[0])
+  for sample in data:
+    stprev = returnData[-1][0]
+    xtprev = sample[0]
+    st = stprev + alpha * (xtprev - stprev)
+    returnData.append([st])
+  return returnData
+
+
 if __name__ == "__main__":
   # get_samples(600,200)
   print(get_samples(600,200))
