@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route('/data')
 def getData():
-    return "[" + c.get_samples(600, 200).strip(",") +"]"
+    return str(c.get_samples(1200, 200))
 
 @app.route('/')
 def welcome():
