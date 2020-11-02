@@ -4,14 +4,14 @@ import socket
 import time
 import datetime
 import struct
-# import StringIO
+import StringIO
 from threading import Thread
 import sys
-# import numpy as np
+import numpy as np
 
 UDP_TIMESYNC_PORT = 3001 # node listens for timesync packets on port 4003
 UDP_REPLY_PORT = 3000 # node listens for reply packets on port 7005
-SENSORTAG2_ADDR = "aaaa::212:4b00:1204:b6d5"
+SENSORTAG2_ADDR = "aaaa::212:4b00:1205:2a01"
 
 isRunning = True
 x_list = []
@@ -91,7 +91,3 @@ except KeyboardInterrupt:
   np_data = np.vstack((np_x, np_y, np_z)).T
   np.savetxt("data/test.csv", np_data, delimiter=',')
   isRunning = False
-
-
-
-
