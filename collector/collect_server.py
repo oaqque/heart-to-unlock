@@ -29,6 +29,7 @@ def udpListenThread():
       data, addr = recvSocket.recvfrom( 1024 )
       print(data)
       split = data.split(", ")
+      print(len(split))
       x = split[0]
       y = split[1]
       z = split[2]
