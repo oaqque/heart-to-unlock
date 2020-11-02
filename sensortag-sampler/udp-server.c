@@ -43,30 +43,32 @@
 #define UIP_IP_BUF   ((struct uip_ip_hdr *)&uip_buf[UIP_LLH_LEN])
 
 #define MAX_PAYLOAD_LEN 120
-#define SAMPLE_RATE 500
+#define SAMPLE_RATE 200
 #define NUM_SAMPLES_SEND 20
+#define TOTAL_SAMPLES_TO_COLLECT 1000
 
 static struct uip_udp_conn *server_conn;
 static struct	ctimer sensor_timer;				
-static int value;
 static int countSamples;
-static int collected_samples[NUM_SAMPLES_SEND];
+static char buf[MAX_PAYLOAD_LEN];
 
 PROCESS(udp_server_process, "UDP server process");
 AUTOSTART_PROCESSES(&resolv_process,&udp_server_process);
 /*---------------------------------------------------------------------------*/
+static void send_sample(int x_acc, int y_acc, int z_acc) {
+  sprintf(buf, "%d, %d, %d", x_acc, y_acc, z_acc);
+  PRINTF(buf);
+  uip_udp_packet_sendto(server_conn, buf, strlen(buf), &server_conn->ripaddr, UIP_HTONS(3000));
+  memset(buf, 0, sizeof(buf));
+}
+/*---------------------------------------------------------------------------*/
 static void sensor_callback(void	*ptr)		{	
-  value = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_GYRO_X);		
-  // printf("Value=%d.%02d\n\r", value/100, value%100);
-  int idx = countSamples % NUM_SAMPLES_SEND;
-  collected_samples[idx] = value;
+  int x_acc = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_X);
+  int y_acc = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_Y);
+  int z_acc = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_Z);		
   countSamples++;
-  if (countSamples <= 600) { 
-    if (countSamples % NUM_SAMPLES_SEND == 0) {
-      PRINTF("SENDING DATA...\n");
-      uip_udp_packet_sendto(server_conn, collected_samples, sizeof(collected_samples), &server_conn->ripaddr, UIP_HTONS(3000));
-      memset(collected_samples, 0, NUM_SAMPLES_SEND);
-    }
+  if (countSamples <= TOTAL_SAMPLES_TO_COLLECT) { 
+    send_sample(x_acc, y_acc, z_acc);
     ctimer_set(&sensor_timer, CLOCK_SECOND / SAMPLE_RATE, sensor_callback, NULL); // Callback timer for lux sensor
   } else {
     SENSORS_DEACTIVATE(mpu_9250_sensor);
@@ -126,14 +128,13 @@ PROCESS_THREAD(udp_server_process, ev, data)
   //Create UDP socket and bind to port 3000
   server_conn = udp_new(NULL, UIP_HTONS(0), NULL);
   udp_bind(server_conn, UIP_HTONS(3001));
-  char buf[MAX_PAYLOAD_LEN];
   while(1) {
     PROCESS_YIELD();
 
 	  //Wait for tcipip event to occur
     if(ev == tcpip_event) {
       tcpip_handler();
-      SENSORS_ACTIVATE(mpu_9250_sensor);
+      mpu_9250_sensor.configure(SENSORS_ACTIVE, MPU_9250_SENSOR_TYPE_ACC_ALL);
       ctimer_set(&sensor_timer, CLOCK_SECOND / SAMPLE_RATE, sensor_callback, NULL);	//Callback timer for lux sensor
     } else if (ev == sensors_event && data == &mpu_9250_sensor) {
     }
