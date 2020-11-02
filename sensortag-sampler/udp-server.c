@@ -88,6 +88,8 @@ static void sensor_callback(void	*ptr)		{
     ctimer_set(&sensor_timer, CLOCK_SECOND / sampleFrequency, sensor_callback, NULL); // Callback timer for lux sensor
   } else {
     send_sample();
+    strcat(buf, "End of data\n\r");
+    send_sample();
     SENSORS_DEACTIVATE(mpu_9250_sensor);
     countSamples = 0;
     PRINTF("All samples sent\n");
