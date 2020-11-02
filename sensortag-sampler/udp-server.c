@@ -30,7 +30,7 @@
 #include "contiki.h"
 #include "contiki-lib.h"
 #include "contiki-net.h"
-#include "sys/ctimer.h"	
+#include "sys/ctimer.h"
 #include "board-peripherals.h"
 
 #include <string.h>
@@ -39,6 +39,7 @@
 
 #define DEBUG DEBUG_PRINT
 #include "net/ip/uip-debug.h"
+#include "utils.h"
 
 #define UIP_IP_BUF   ((struct uip_ip_hdr *)&uip_buf[UIP_LLH_LEN])
 
@@ -46,6 +47,10 @@
 #define SAMPLE_RATE 200
 #define ITERATIONS_BEFORE_SEND 6
 #define TOTAL_SAMPLES_TO_COLLECT 600
+#define PAR_LEN 30
+
+static int numSamples = TOTAL_SAMPLES_TO_COLLECT;
+static int sampleFrequency = SAMPLE_RATE;
 
 static struct uip_udp_conn *server_conn;
 static struct	ctimer sensor_timer;				
@@ -84,17 +89,42 @@ static void sensor_callback(void	*ptr)		{
     SENSORS_DEACTIVATE(mpu_9250_sensor);
     PRINTF("All samples sent\n");
   }
-}		
+}
+
+static int processRequest(int bytes, char* data) {
+	data[bytes-1]='\0';
+	char par1[PAR_LEN] = {0};
+	char par2[PAR_LEN] = {0};
+	char par3[PAR_LEN] = {0};
+	int err = 1;
+	if (startsWith("GET", data)) {
+		// Expecting Path: /acceleration/{num_samples}/{frequency}
+		int numParams = parseGetRequest(data, bytes, PAR_LEN, par1, par2, par3);
+		if (numParams == 3) {
+			if (strcmp(par1, "acceleration") == 0) {
+				if (myAtoi(par2, &numSamples) && myAtoi(par3, &sampleFrequency)) {
+					err = 0;
+				}
+			}
+		}
+	}
+	if (err) returnError(data);
+	return !err;
+}
+
 /*---------------------------------------------------------------------------*/
 static void
 tcpip_handler(void)
 {
   if(uip_newdata()) {
+    ((char *)uip_appdata)[uip_datalen()] = 0;
+    processRequest(uip_datalen(), (char *)uip_appdata);
     PRINTF("SensorTag Received Start Signal from \n");
     PRINT6ADDR(&UIP_IP_BUF->srcipaddr);
     PRINTF("\n");
     uip_ipaddr_copy(&server_conn->ripaddr, &UIP_IP_BUF->srcipaddr);
     PRINTF("Starting collection of data...\n");
+    
   }
 }
 /*---------------------------------------------------------------------------*/
