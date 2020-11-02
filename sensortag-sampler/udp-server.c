@@ -42,10 +42,10 @@
 
 #define UIP_IP_BUF   ((struct uip_ip_hdr *)&uip_buf[UIP_LLH_LEN])
 
-#define MAX_PAYLOAD_LEN 120
+#define MAX_PAYLOAD_LEN 500
 #define SAMPLE_RATE 200
-#define NUM_SAMPLES_SEND 20
-#define TOTAL_SAMPLES_TO_COLLECT 1000
+#define ITERATIONS_BEFORE_SEND 5
+#define TOTAL_SAMPLES_TO_COLLECT 600
 
 static struct uip_udp_conn *server_conn;
 static struct	ctimer sensor_timer;				
@@ -55,11 +55,27 @@ static char buf[MAX_PAYLOAD_LEN];
 PROCESS(udp_server_process, "UDP server process");
 AUTOSTART_PROCESSES(&resolv_process,&udp_server_process);
 /*---------------------------------------------------------------------------*/
-static void send_sample(int x_acc, int y_acc, int z_acc) {
-  sprintf(buf, "%d, %d, %d", x_acc, y_acc, z_acc);
-  PRINTF(buf);
+static void send_sample() {
+  PRINTF("Sending packet of length %d: ", strlen(buf));
+  PRINTF("%s \n", buf);
   uip_udp_packet_sendto(server_conn, buf, strlen(buf), &server_conn->ripaddr, UIP_HTONS(3000));
-  memset(buf, 0, sizeof(buf));
+  memset(buf, 0, strlen(buf));
+}
+/*---------------------------------------------------------------------------*/
+static void store_sample(int x_acc, int y_acc, int z_acc) {
+  static char tmp[15];
+
+  sprintf(tmp, "%d, ", x_acc / 100);
+  strcat(buf, tmp);
+  memset(tmp, 0, strlen(tmp));
+
+  sprintf(tmp, "%d, ", y_acc / 100);
+  strcat(buf, tmp);
+  memset(tmp, 0, strlen(tmp));
+
+  sprintf(tmp, "%d, ", z_acc / 100);
+  strcat(buf, tmp);
+  memset(tmp, 0, strlen(tmp));
 }
 /*---------------------------------------------------------------------------*/
 static void sensor_callback(void	*ptr)		{	
@@ -68,7 +84,10 @@ static void sensor_callback(void	*ptr)		{
   int z_acc = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_Z);		
   countSamples++;
   if (countSamples <= TOTAL_SAMPLES_TO_COLLECT) { 
-    send_sample(x_acc, y_acc, z_acc);
+    store_sample(x_acc, y_acc, z_acc);
+    if (countSamples % ITERATIONS_BEFORE_SEND == 0) {
+      send_sample();
+    }
     ctimer_set(&sensor_timer, CLOCK_SECOND / SAMPLE_RATE, sensor_callback, NULL); // Callback timer for lux sensor
   } else {
     SENSORS_DEACTIVATE(mpu_9250_sensor);
