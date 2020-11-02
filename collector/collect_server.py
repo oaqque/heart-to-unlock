@@ -91,7 +91,3 @@ except KeyboardInterrupt:
   np_data = np.vstack((np_x, np_y, np_z)).T
   np.savetxt("data/test.csv", np_data, delimiter=',')
   isRunning = False
-
-
-
-
