@@ -134,8 +134,8 @@ PROCESS_THREAD(udp_server_process, ev, data)
     if(ev == tcpip_event) {
       tcpip_handler();
       SENSORS_ACTIVATE(mpu_9250_sensor);
-      ctimer_set(&sensor_timer, CLOCK_SECOND / SAMPLE_RATE, sensor_callback, NULL);	//Callback timer for lux sensor
     } else if (ev == sensors_event && data == &mpu_9250_sensor) {
+      ctimer_set(&sensor_timer, CLOCK_SECOND / SAMPLE_RATE, sensor_callback, NULL);	//Callback timer for lux sensor
     }
   }
 
