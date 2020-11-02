@@ -45,7 +45,23 @@ def udpSend(num=600, freq=200):
   sock.sendto(string, (SENSORTAG2_ADDR, UDP_TIMESYNC_PORT))
 
 def get_samples(num=600, freq=200):
-  return udpListenThread(num, freq).replace("(","[").replace(")","]").replace("\n\r",",")
+  data = udpListenThread(num, freq) #.replace("(","[").replace(")","]").replace("\n\r",",")
+  # (x,y,z)\n\r
+  #
+  normailised = []
 
+  tuples = data.strip("\n\r").split("\n\r")
+  for t in tuples:
+    d = t.strip("(").strip(")")
+    split = d.split(",")
+    # print(split)
+    # xData.append(int(split[0]))
+    # zData.append(int(split[2]))
+    normailised.append([int(split[0]) + int(split[2])])
+    # retString += "["+str(int(split[0]) + int(split[2])) +"],"
+    # [[v],[v],[v]]
+  return normailised
+  
 if __name__ == "__main__":
+  # get_samples(600,200)
   print(get_samples(600,200))

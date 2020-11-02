@@ -14,17 +14,28 @@
           newArray.unshift(value);
           return newArray;
         }
-
+        // d = [
+        //  [x,y,z],
+        //  [x,y,z],
+        //  [x,y,z],
+        //  [x,y,z],
+        //]
         for (i = 0; i < d.length; i++) {
-          d[i] = prepend(i, d[i]);
+          d[i] = prepend(i/200, d[i]);
         }
+        // d = [
+        //  [1/200,x,y,z],
+        //  [2/200,x,y,z],
+        //  [t,x,y,z],
+        //  [t,x,y,z],
+        //]
 
         console.log(d)
 
         var data = new google.visualization.DataTable();
-        data.addColumn('number', 'Time');
-        data.addColumn('number', 'X');
-        data.addColumn('number', 'Y');
+        data.addColumn('number', 'Time (Seconds)');
+        //data.addColumn('number', 'X');
+        //data.addColumn('number', 'Y');
         data.addColumn('number', 'Z');
 
         var imuData = 
@@ -47,6 +58,8 @@
         var chart = new google.charts.Line(document.getElementById('line_top_x'));
 
         chart.draw(data, google.charts.Line.convertOptions(options));
+
+        document.getElementById("h").innerHTML = "";
       });
     }
   </script>
