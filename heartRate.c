@@ -151,9 +151,8 @@ int convertData(int x) {
 }
 
 void send_return(int x, int y, int z) {
-    int len = sprintf(myBuff, "{%d, %d, %d}\n\r\0", convertData(x), convertData(y), convertData(z));
+    sprintf(myBuff, "{%d, %d, %d}\n\r\0", convertData(x), convertData(y), convertData(z));
 	tcp_socket_send_str(&socket, myBuff);
-	// memset(myBuff, 0, len);
 }
 void imu_init() {
     mpu_9250_sensor.configure(SENSORS_ACTIVE, MPU_9250_SENSOR_TYPE_ACC);
@@ -174,7 +173,8 @@ void imu_callback(void *ptr) {
 	int val_x, val_y, val_z;
 	val_x = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_X);
 	val_y = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_Y);
-	val_z = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_ALL);
+	// val_z = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_ALL);
+	val_z = mpu_9250_sensor.value(MPU_9250_SENSOR_ACC_RANGE_4G);
 	ctimer_set(&imu_timer, CLOCK_SECOND/frequency, imu_callback, NULL);
 	send_return(val_x, val_y, val_z);
 }
