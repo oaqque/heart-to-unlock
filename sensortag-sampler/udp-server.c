@@ -79,14 +79,17 @@ static void sensor_callback(void	*ptr)		{
   int y_acc = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_Y);
   int z_acc = mpu_9250_sensor.value(MPU_9250_SENSOR_TYPE_ACC_Z);		
   countSamples++;
-  if (countSamples <= TOTAL_SAMPLES_TO_COLLECT) { 
+  if (countSamples <= numSamples) { 
     store_sample(x_acc, y_acc, z_acc);
     if (countSamples % ITERATIONS_BEFORE_SEND == 0) {
       send_sample();
     }
-    ctimer_set(&sensor_timer, CLOCK_SECOND / SAMPLE_RATE, sensor_callback, NULL); // Callback timer for lux sensor
+    PRINTF("%d", sampleFrequency);
+    ctimer_set(&sensor_timer, CLOCK_SECOND / sampleFrequency, sensor_callback, NULL); // Callback timer for lux sensor
   } else {
+    send_sample();
     SENSORS_DEACTIVATE(mpu_9250_sensor);
+    countSamples = 0;
     PRINTF("All samples sent\n");
   }
 }
@@ -98,7 +101,7 @@ static int processRequest(int bytes, char* data) {
 	char par3[PAR_LEN] = {0};
 	int err = 1;
 	if (startsWith("GET", data)) {
-		// Expecting Path: /acceleration/{num_samples}/{frequency}
+		// Expecting Path: GET /acceleration/{num_samples}/{frequency}
 		int numParams = parseGetRequest(data, bytes, PAR_LEN, par1, par2, par3);
 		if (numParams == 3) {
 			if (strcmp(par1, "acceleration") == 0) {
@@ -108,7 +111,6 @@ static int processRequest(int bytes, char* data) {
 			}
 		}
 	}
-	if (err) returnError(data);
 	return !err;
 }
 
@@ -176,7 +178,7 @@ PROCESS_THREAD(udp_server_process, ev, data)
       tcpip_handler();
       mpu_9250_sensor.configure(SENSORS_ACTIVE, MPU_9250_SENSOR_TYPE_ALL);
     } else if (ev == sensors_event && data == &mpu_9250_sensor) {
-      ctimer_set(&sensor_timer, CLOCK_SECOND / SAMPLE_RATE, sensor_callback, NULL);	//Callback timer for lux sensor
+      ctimer_set(&sensor_timer, CLOCK_SECOND / sampleFrequency, sensor_callback, NULL);	//Callback timer for lux sensor
     }
   }
 
