@@ -29,7 +29,7 @@ def udpListenThread(num=600, freq=200):
   while 1:
     try:
       chunk, addr = recvSocket.recvfrom( 1024 )
-      # print(data)
+      # print(chunk)
       if "End of data" in chunk:
         break
       else:
@@ -44,11 +44,11 @@ def udpSend(num=600, freq=200):
   print("Calling: " + string + "\n")
   sock.sendto(string, (SENSORTAG2_ADDR, UDP_TIMESYNC_PORT))
 
-def getSamples(num=600, freq=200):
-  return udpListenThread(num, freq)
+def get_samples(num=600, freq=200):
+  return udpListenThread(num, freq).replace("(","[").replace(")","]").replace("\n\r",",")
 
 if __name__ == "__main__":
-  print(getSamples(100,200))
+  print(get_samples(600,200))
 # if __name__ == "__main__":
 #   # start UDP listener as a thread
 #   t1 = Thread(target=udpListenThread)
