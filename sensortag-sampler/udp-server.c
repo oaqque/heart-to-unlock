@@ -64,7 +64,7 @@ static void send_sample() {
 static void store_sample(int x_acc, int y_acc, int z_acc) {
   static char tmp[40];
 
-  sprintf(tmp, "%d, %d, %d, ", x_acc, y_acc, z_acc);
+  sprintf(tmp, "(%d,%d,%d)\n\r", x_acc, y_acc, z_acc);
   strcat(buf, tmp);
   memset(tmp, 0, strlen(tmp));
 }
