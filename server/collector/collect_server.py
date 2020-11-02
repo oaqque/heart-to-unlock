@@ -54,11 +54,9 @@ def get_samples(num=600, freq=200):
   for t in tuples:
     d = t.strip("(").strip(")")
     split = d.split(",")
-    # print(split)
-    # xData.append(int(split[0]))
-    # zData.append(int(split[2]))
-    normailised.append([int(split[0]) + int(split[2])])
-    # retString += "["+str(int(split[0]) + int(split[2])) +"],"
+    normailised.append([int(split[2])])
+    # normailised.append([int(split[0]), int(split[2])])
+    # normailised.append([int(split[0]) + int(split[2])])
     # [[v],[v],[v]]
   return normailised
   
