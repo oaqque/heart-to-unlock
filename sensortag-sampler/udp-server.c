@@ -43,8 +43,8 @@
 #define UIP_IP_BUF   ((struct uip_ip_hdr *)&uip_buf[UIP_LLH_LEN])
 
 #define MAX_PAYLOAD_LEN 500
-#define SAMPLE_RATE 200
-#define ITERATIONS_BEFORE_SEND 5
+#define SAMPLE_RATE 100
+#define ITERATIONS_BEFORE_SEND 4
 #define TOTAL_SAMPLES_TO_COLLECT 600
 
 static struct uip_udp_conn *server_conn;
@@ -63,17 +63,9 @@ static void send_sample() {
 }
 /*---------------------------------------------------------------------------*/
 static void store_sample(int x_acc, int y_acc, int z_acc) {
-  static char tmp[15];
+  static char tmp[40];
 
-  sprintf(tmp, "%d, ", x_acc / 100);
-  strcat(buf, tmp);
-  memset(tmp, 0, strlen(tmp));
-
-  sprintf(tmp, "%d, ", y_acc / 100);
-  strcat(buf, tmp);
-  memset(tmp, 0, strlen(tmp));
-
-  sprintf(tmp, "%d, ", z_acc / 100);
+  sprintf(tmp, "%d, %d, %d, ", x_acc / 100, y_acc / 100, z_acc / 100);
   strcat(buf, tmp);
   memset(tmp, 0, strlen(tmp));
 }
@@ -154,7 +146,6 @@ PROCESS_THREAD(udp_server_process, ev, data)
     if(ev == tcpip_event) {
       tcpip_handler();
       mpu_9250_sensor.configure(SENSORS_ACTIVE, MPU_9250_SENSOR_TYPE_ACC_ALL);
-      ctimer_set(&sensor_timer, CLOCK_SECOND / SAMPLE_RATE, sensor_callback, NULL);	//Callback timer for lux sensor
     } else if (ev == sensors_event && data == &mpu_9250_sensor) {
       ctimer_set(&sensor_timer, CLOCK_SECOND / SAMPLE_RATE, sensor_callback, NULL);	//Callback timer for lux sensor
     }
