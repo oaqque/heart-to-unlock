@@ -49,32 +49,3 @@ def get_samples(num=600, freq=200):
 
 if __name__ == "__main__":
   print(get_samples(600,200))
-# if __name__ == "__main__":
-#   # start UDP listener as a thread
-#   t1 = Thread(target=udpListenThread)
-#   t1.start()
-#   print("Listening for incoming packets on UDP port", UDP_REPLY_PORT)
-
-#   time.sleep(1)
-
-#   # start UDP timesync sender as a thread
-#   t2 = Thread(target=udpSendThread)
-#   t2.start()
-
-#   print("Sending packets on UDP port", UDP_TIMESYNC_PORT)
-#   print("Exit application by pressing (CTRL-C)")
-
-#   try:
-#     while True:
-#       # wait for application to finish (ctrl-c)
-#       time.sleep(1)
-#   except KeyboardInterrupt:
-#     print("Keyboard interrupt received. Exiting.")
-#     print("Saving csv")
-
-#     #np_x = np.array(x_list)
-#     #np_y = np.array(y_list)
-#     #np_z = np.array(z_list)
-#     #np_data = np.vstack((np_x, np_y, np_z)).T
-#     #np.savetxt("data/test.csv", np_data, delimiter=',')
-#     isRunning = False
