@@ -77,13 +77,10 @@ try:
 except KeyboardInterrupt:
   print("Keyboard interrupt received. Exiting.")
   print("Saving csv")
+
   #np_x = np.array(x_list)
   #np_y = np.array(y_list)
   #np_z = np.array(z_list)
   #np_data = np.vstack((np_x, np_y, np_z)).T
   #np.savetxt("data/test.csv", np_data, delimiter=',')
   isRunning = False
-
-
-
-
