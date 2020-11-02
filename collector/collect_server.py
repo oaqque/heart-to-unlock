@@ -28,14 +28,6 @@ def udpListenThread():
     try:
       data, addr = recvSocket.recvfrom( 1024 )
       print(data)
-      split = data.split(", ")
-      print(len(split))
-      x = split[0]
-      y = split[1]
-      z = split[2]
-      x_list.append(int(x))
-      y_list.append(int(y))
-      z_list.append(int(z))
     except socket.timeout:
       pass
     
@@ -52,7 +44,7 @@ def udpSendThread():
     # you may start with one sensortag.
     if sendFlag:
         print("Sending Init")
-        sock.sendto(struct.pack("I", timestamp), (SENSORTAG2_ADDR, UDP_TIMESYNC_PORT))
+        sock.sendto("GET /acceleration/600/200 ", (SENSORTAG2_ADDR, UDP_TIMESYNC_PORT))
         sendFlag = False
     # sock.sendto(struct.pack("I", timestamp), ("Address For Sensortag2", UDP_TIMESYNC_PORT))
     # sendto(bytes, flags, address)
@@ -75,7 +67,7 @@ time.sleep(1)
 t2 = Thread(target=udpSendThread)
 t2.start()
 
-print("Sending timesync packets on UDP port", UDP_TIMESYNC_PORT)
+print("Sending packets on UDP port", UDP_TIMESYNC_PORT)
 print("Exit application by pressing (CTRL-C)")
 
 try:
@@ -85,11 +77,11 @@ try:
 except KeyboardInterrupt:
   print("Keyboard interrupt received. Exiting.")
   print("Saving csv")
-  np_x = np.array(x_list)
-  np_y = np.array(y_list)
-  np_z = np.array(z_list)
-  np_data = np.vstack((np_x, np_y, np_z)).T
-  np.savetxt("data/test.csv", np_data, delimiter=',')
+  #np_x = np.array(x_list)
+  #np_y = np.array(y_list)
+  #np_z = np.array(z_list)
+  #np_data = np.vstack((np_x, np_y, np_z)).T
+  #np.savetxt("data/test.csv", np_data, delimiter=',')
   isRunning = False
 
 
