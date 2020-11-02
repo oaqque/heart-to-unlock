@@ -14,7 +14,9 @@ UDP_REPLY_PORT = 3000 # node listens for reply packets on port 7005
 SENSORTAG2_ADDR = "aaaa::212:4b00:1204:b6d5"
 
 isRunning = True
-data_list = []
+x_list = []
+y_list = []
+z_list = []
 
 def udpListenThread():
  # listen on UDP socket port UDP_TIMESYNC_PORT
@@ -26,8 +28,13 @@ def udpListenThread():
     try:
       data, addr = recvSocket.recvfrom( 1024 )
       print(data)
-      print("packet received")
-      # data_list.append(int(data))
+      split = data.split(", ")
+      x = split[0]
+      y = split[1]
+      z = split[2]
+      x_list.append(int(x))
+      y_list.append(int(y))
+      z_list.append(int(z))
     except socket.timeout:
       pass
     
@@ -77,9 +84,11 @@ try:
 except KeyboardInterrupt:
   print("Keyboard interrupt received. Exiting.")
   print("Saving csv")
-  # np_data = np.array(data_list)
-  # np.savetxt("data/test.csv", np_data, delimiter=',')
-  print(data_list)
+  np_x = np.array(x_list)
+  np_y = np.array(y_list)
+  np_z = np.array(z_list)
+  np_data = np.vstack((np_x, np_y, np_z)).T
+  np.savetxt("data/test.csv", np_data, delimiter=',')
   isRunning = False
 
 
