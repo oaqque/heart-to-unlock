@@ -54,26 +54,65 @@ def get_samples(num=600, freq=200):
   for t in tuples:
     d = t.strip("(").strip(")")
     split = d.split(",")
-    # print(split)
-    # xData.append(int(split[0]))
-    # zData.append(int(split[2]))
-    normailised.append([int(split[0]) + int(split[2])])
-    # retString += "["+str(int(split[0]) + int(split[2])) +"],"
+    normailised.append([int(split[2])])
+    # normailised.append([int(split[0]), int(split[2])])
+    # normailised.append([int(split[0]) + int(split[2])])
     # [[v],[v],[v]]
   return smooth(normailised)
 
 def smooth(data, alpha=0.2):
   # Data = [[v],[v],[v]]
   returnData = []
-  returnData.append(data[0])
-  for sample in data:
+  returnData.append([data[0][0]])
+
+
+  # filtered = lowPassFilter(data)
+  filtered = data
+  
+  for i, sample in enumerate(filtered):
     stprev = returnData[-1][0]
     xtprev = sample[0]
     st = stprev + alpha * (xtprev - stprev)
+    # returnData.append([filtered[i][0],st])
     returnData.append([st])
   return returnData
+
+def lowPassFilter(data, filterVal=2):
+  tot = 0
+  num = 0
+  for s in data:
+    tot += s[0]
+    num += 1
+  avg = tot/num
+    
+  filtered = []
+  i = 0
+  while i < len(data):
+    s = data[i]
+    v = s[0]
+    j=0
+    prev = s[0]
+    gradient=0
+    prevGrad=0
+    lastIndex = 0
+    while abs(avg - data[i+j][0]) < filterVal:
+      if i+j == len(data)-1:
+        break
+      gradient = prev-data[i+j][0]
+      if gradient*prevGrad < 0:
+        lastIndex = i+j
+      prev = data[i+j][0]
+      prevGrad = gradient
+      v = s[0]
+      j += 1
+    for k in range(0,lastIndex):
+        filtered.append([v])
+    if lastIndex == 0:
+      filtered.append([v])
+    i += lastIndex+1
+  return filtered
 
 
 if __name__ == "__main__":
   # get_samples(600,200)
-  print(get_samples(600,200))
+  print(get_samples(100,200))
