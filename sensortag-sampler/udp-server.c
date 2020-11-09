@@ -155,6 +155,7 @@ PROCESS_THREAD(udp_server_process, ev, data)
   uip_ipaddr_t ipaddr;
 #endif /* UIP_CONF_ROUTER */
 
+  PROCESS_BEGIN();
   PRINTF("UDP server started\n\r");
 
 #if RESOLV_CONF_SUPPORTS_MDNS
@@ -171,8 +172,6 @@ PROCESS_THREAD(udp_server_process, ev, data)
   //Create UDP socket and bind to port 3000
   server_conn = udp_new(NULL, UIP_HTONS(0), NULL);
   udp_bind(server_conn, UIP_HTONS(3001));
-
-  PROCESS_BEGIN();
   
   while(1) {
     PROCESS_YIELD();
