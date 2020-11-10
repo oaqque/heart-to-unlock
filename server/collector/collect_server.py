@@ -11,24 +11,29 @@ import sys
 
 UDP_TIMESYNC_PORT = 3001 # node listens for timesync packets on port 4003
 UDP_REPLY_PORT = 3000 # node listens for reply packets on port 7005
-SENSORTAG2_ADDR = "aaaa::212:4b00:1204:b6d5"
+# SENSORTAG2_ADDR = "aaaa::212:4b00:1204:b6d5"
+SENSORTAG2_ADDR = "aaaa::212:4b00:1665:a880"
+FILEPATH = "/media/psf/Home/Documents/Uni/2020/term_3/COMP6733/Project/code/server/collector/data/"
 
 x_list = []
 y_list = []
 z_list = []
 
-def udpListenThread(num=600, freq=200):
- # listen on UDP socket port UDP_TIMESYNC_PORT
+def setupSockets(num, freq):
+  # listen on UDP socket port UDP_TIMESYNC_PORT
   recvSocket = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
   recvSocket.bind(("aaaa::1", UDP_REPLY_PORT))
   recvSocket.settimeout(0.5)
-  data = ""
-
   udpSend(num, freq)
+  return recvSocket
+
+def udpListenThread(num=600, freq=200):
+  rcvSocket = setupSockets(num, freq)
+  data = ""
 
   while 1:
     try:
-      chunk, addr = recvSocket.recvfrom( 1024 )
+      chunk, addr = rcvSocket.recvfrom( 1024 )
       # print(chunk)
       if "End of data" in chunk:
         break
@@ -58,7 +63,10 @@ def get_samples(num=600, freq=200):
     # normailised.append([int(split[0]), int(split[2])])
     # normailised.append([int(split[0]) + int(split[2])])
     # [[v],[v],[v]]
-  return smooth(normailised)
+  # return smooth(normailised)
+
+  saveData(normailised)
+  return normailised
 
 def smooth(data, alpha=0.2):
   # Data = [[v],[v],[v]]
@@ -112,7 +120,15 @@ def lowPassFilter(data, filterVal=2):
     i += lastIndex+1
   return filtered
 
+def saveData(data):
+  filename = "data-" + time.strftime("%Y%m%d-%H%M%S") + ".csv"
+  dataString = ""
+  for d in data:
+    dataString += str(d[0]) + "\n"
+  dataString.strip("\n")
+  with open(FILEPATH+filename, 'w') as file:
+    file.write(dataString)
 
 if __name__ == "__main__":
   # get_samples(600,200)
-  print(get_samples(100,200))
+  saveData(get_samples(600,200))
