@@ -1,0 +1,72 @@
+<html>
+<head>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['line']});
+      google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+      $.getJSON('http://127.0.0.1:5000/test/data', function(d) {
+
+        function prepend(value, array) {
+          var newArray = array.slice();
+          newArray.unshift(value);
+          return newArray;
+        }
+        // d = [
+        //  [x,y,z],
+        //  [x,y,z],
+        //  [x,y,z],
+        //  [x,y,z],
+        //]
+        for (i = 0; i < d.length; i++) {
+          d[i] = prepend(i/200, d[i]);
+        }
+        // d = [
+        //  [1/200,x,y,z],
+        //  [2/200,x,y,z],
+        //  [t,x,y,z],
+        //  [t,x,y,z],
+        //]
+
+        console.log(d)
+
+        var data = new google.visualization.DataTable();
+        data.addColumn('number', 'Time (Seconds)');
+        //data.addColumn('number', 'X');
+        //data.addColumn('number', 'Y');
+        //data.addColumn('number', 'Un-Smoothed');
+        data.addColumn('number', 'Heart Acceleration Data');
+
+        var imuData = 
+        data.addRows(d);
+
+        var options = {
+          chart: {
+            title: 'Heart Rate Data',
+            subtitle: '600 samples at 200Hz'
+          },
+          width: 700,
+          height: 500,
+          axes: {
+            x: {
+              0: {side: 'top'}
+            }
+          }
+        };
+
+        var chart = new google.charts.Line(document.getElementById('line_top_x'));
+
+        chart.draw(data, google.charts.Line.convertOptions(options));
+
+        document.getElementById("h").innerHTML = "";
+      });
+    }
+  </script>
+</head>
+<body>
+  <div id="line_top_x"></div>
+  <p id="h">Please wait while collecting data...</p>
+</body>
+</html> 
