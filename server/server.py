@@ -14,7 +14,7 @@ def getData():
     # Send data to cloud IoT as well
     data = c.get_samples(1200, 200)
     data = c.bandFilter(data)
-    data = c.lowPassFilter(data, 3)
+    [data,heartRateIndicies] = c.lowPassFilter(data, 3)
     # data = [[s], [s], [s], [s]]
     
     # send_to_iot(data)
@@ -37,8 +37,8 @@ def testData():
 def testGetData():
     # data = c.getSavedData()
     # data = c.lowPassFilter(c.getSavedData(),2)
-    data = c.bandFilter(c.getSavedData())
-    data = c.lowPassFilter(data,2.5)
+    data = c.bandFilter(c.getSavedData(12))
+    [data,heartRateIndicies] = c.lowPassFilter(data, 3)
     # print(data)
     return str(data)
 

@@ -8,7 +8,8 @@ import struct
 from threading import Thread
 import sys
 import os
-# import numpy as np
+import process_heartbeat as p
+import plotter as plotter
 
 UDP_TIMESYNC_PORT = 3001 # node listens for timesync packets on port 4003
 UDP_REPLY_PORT = 3000 # node listens for reply packets on port 7005
@@ -119,13 +120,6 @@ def lowPassFilter(data, filterVal=2):
   i = 0
   sections = []
   while i < len(data):
-    # s = data[i]
-    # v = s[0]
-    # if abs(v) < filterVal:
-    #   filtered.append([0])
-    # else:
-    #   filtered.append([v])
-    # i += 1
     indices = nextThreshBreaker(data, i, filterVal)
     i = indices[1]
     i += 1
@@ -146,7 +140,7 @@ def lowPassFilter(data, filterVal=2):
     filtered.append([0])
     i += 1
   
-  return filtered
+  return [filtered, heartSections]
 
 def nextThreshBreaker(data, start, threshhold):
   i = 0
@@ -157,35 +151,26 @@ def nextThreshBreaker(data, start, threshhold):
       gradient = abs(v)/v
       break
   # retData[fistIndex, PeakIndex]
-  print("Location is "+ str(i))
   if (i > len(data)-3):
     return [-1, -1]
   return [followBackwardGradient(data, i, gradient), followForwardGradient(data, i, gradient)]
 
 def followForwardGradient(data, start, sign):
-  print(sign)
-  print(start)
   gradient = data[start][0]/abs(data[start][0])*sign
   prevGradient = sign
   j = start
   for j in range(start, len(data)-1):
     if gradient*prevGradient <= 0:
-      print("breaking " + str(j))
-      print(data[j+1][0])
       break
     gradient = data[j+1][0]-data[j][0]
   return j
 
 def followBackwardGradient(data, start, sign):
-  print(sign)
-  print(start)
   gradient = data[start][0]/abs(data[start][0])*sign
-  print("Gradient = " + str(gradient))
   prevGradient = sign
   j = start
   for j in reversed(range(0, start)):
     if gradient*prevGradient <= 0:
-      print("breaking " + str(j))
       break
     gradient = data[j][0]-data[j-1][0]
   return j
@@ -196,7 +181,6 @@ def findHeartRateIndicies(sections, numSampleThresh=10):
   i = 1
   while i < len(sections):
     initIndex = sections[i-1][0]
-    print(initIndex)
     j = i
     while j < len(sections):
       if abs(sections[j-1][1]-sections[j][0]) > numSampleThresh:
@@ -206,36 +190,80 @@ def findHeartRateIndicies(sections, numSampleThresh=10):
     i = j+1
   return heartBeatSections
     
-def saveData(data):
-  filename = "data-" + time.strftime("%Y%m%d-%H%M%S") + ".csv"
+def saveData(data, my_dir="raw/", name="data"):
+  filename = name + "-" + time.strftime("%Y%m%d-%H%M%S") + ".csv"
   dataString = ""
   for d in data:
     dataString += str(d[0]) + "\n"
   dataString.strip("\n")
-  with open(FILEPATH+filename, 'w') as file:
+  with open(FILEPATH+my_dir+filename, 'w') as file:
     file.write(dataString)
 
-def getSavedData():
+def saveData2(data, my_dir="raw/", name="data"):
+  filename = name + "-" + time.strftime("%Y%m%d-%H%M%S") + ".csv"
+  dataString = ""
+  for d in data:
+    dataString += str(d) + "\n"
+  dataString.strip("\n")
+  with open(FILEPATH+my_dir+filename, 'w') as file:
+    file.write(dataString)
+
+def getSavedData(index = 0, dir="raw/"):
   # for filename in os.listdir(FILEPATH):
-  filename = os.listdir(FILEPATH)[8]
+  path = FILEPATH+dir
+  filename = os.listdir(path)[index]
   data = []
-  with open(FILEPATH + filename, 'r') as File:
+  with open(path + filename, 'r') as File:
     printedData = File.read()
   for line in printedData.split("\n"):
     try:
       data.append([int(line)])
     except ValueError:
       pass
-
   return data
+
+def extractPrelimData():
+  features = []
+  integrals = []
+  lengths = []
+  for i in range(1, len(os.listdir(FILEPATH+"raw/"))):
+    data = bandFilter(getSavedData(i))
+    [data, featureIndices] = lowPassFilter(data, 2.5)
+    f = p.extract_heart_beats(data, featureIndices)
+    [ints, l] = p.compute_abs_integral(f)
+    # print(i, os.listdir(FILEPATH)[i], sum(ints)/len(ints))
+    # print(l)
+    features += f
+    integrals += ints
+    lengths += l
+  return [features, integrals, lengths]
+
+def filterFeatures(lmin=0, lmax=100, imin=20, imax=30):
+  indices = []
+  [f, ints, l] = extractPrelimData()
+  print(len(l))
+  for i in range(len(l)):
+    if l[i] > lmax or l[i] < lmin or ints[i] > imax or ints[i] < imin:
+      indices.append(i)
+  remove_indexes(f, indices)
+  remove_indexes(ints, indices)
+  remove_indexes(l, indices)
+  return [f, ints, l]
+
+def remove_indexes(my_list, indexes):
+  for index in sorted(indexes, reverse=True):
+    del my_list[index]
+
 
 if __name__ == "__main__":
   # get_samples(600,200)
   # saveData(get_samples(600,200))
-  data = bandFilter(getSavedData())
-  data = lowPassFilter(data, 2.5)
-  # print(data)
-  # indices = nextThreshBreaker(data, 580, 3)
-  # print(indices)
-  # print(len(data))
-  # print(getSavedData())
+  [f, i, l] = filterFeatures()
+  saveData2(f, "features/", "sample_true")
+  print(len(i))
+  # print(i)
+  # print(l)
+  plotter.plot_hist_pyplot(i, "Heart Integral Histogram")
+  plotter.plot_hist_pyplot(l, "Heartbeat Duration Histogram")
+
+  
