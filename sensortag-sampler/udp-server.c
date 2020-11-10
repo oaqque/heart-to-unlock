@@ -30,8 +30,9 @@
 #include "contiki.h"
 #include "contiki-lib.h"
 #include "contiki-net.h"
+#include "ipv6/uip-ds6.h"
 #include "sys/ctimer.h"
-#include "board-peripherals.h"
+#include "sensortag/board-peripherals.h"
 
 #include <string.h>
 #include <stdio.h>

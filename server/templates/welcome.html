@@ -2,9 +2,16 @@
 <head>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-    <script type="text/javascript">
-      google.charts.load('current', {'packages':['line']});
-      google.charts.setOnLoadCallback(drawChart);
+  <script type="text/javascript" src="static/js/reconnecting-websocket.min.js"></script>
+  <script type="text/javascript">
+    google.charts.load('current', {'packages':['line']});
+    google.charts.setOnLoadCallback(drawChart);
+
+    ws = new ReconnectingWebSocket("ws://127.0.0.1:5000/wsData");
+
+    ws.onmessage = function(message) {
+      document.getElementById('h').innerHTML += message;
+    }
 
     function drawChart() {
       $.getJSON('http://127.0.0.1:5000/data', function(d) {
