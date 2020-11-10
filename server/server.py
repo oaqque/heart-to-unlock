@@ -13,6 +13,8 @@ app = Flask(__name__)
 def getData():
     # Send data to cloud IoT as well
     data = c.get_samples(1200, 200)
+    data = c.bandFilter(data)
+    data = c.lowPassFilter(data, 3)
     # data = [[s], [s], [s], [s]]
     
     # send_to_iot(data)
@@ -33,7 +35,7 @@ def testData():
 
 @app.route('/test/data')
 def testGetData():
-    data = c.getSavedData()
+    # data = c.getSavedData()
     # data = c.lowPassFilter(c.getSavedData(),2)
     data = c.bandFilter(c.getSavedData())
     data = c.lowPassFilter(data,2.5)
