@@ -14,8 +14,8 @@ app = Flask(__name__)
 def getData():
     # Send data to cloud IoT as well
     data = c.get_samples(1200, 200)
-    data = c.bandFilter(data)
-    [data,heartRateIndicies] = c.lowPassFilter(data, 3)
+    data = sp.bandFilter(data)
+    [data,heartRateIndicies] = sp.lowPassFilter(data, 3)
     # data = [[s], [s], [s], [s]]
     
     # send_to_iot(data)
