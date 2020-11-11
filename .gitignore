@@ -17,3 +17,7 @@
 !README.md
 !collector
 !collector/*.py
+!server/collector/data
+!features
+!raw
+!*.csv
