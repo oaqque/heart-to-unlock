@@ -91,10 +91,11 @@ def saveData2(data, my_dir="raw/", name="data"):
 if __name__ == "__main__":
   # get_samples(600,200)
   # saveData(get_samples(600,200))
-  [f, i, l] = sp.filterFeatures()
-  saveData2(f, "features/", "sample_true")
+  [f, i, ais, l] = sp.filterFeatures(sp.getAllSavedData())
+  # saveData2(f, "features/", "sample_true")
   print(len(i))
   # print(i)
   # print(l)
   plotter.plot_hist_pyplot(i, "Heart Integral Histogram")
+  plotter.plot_hist_pyplot(ais, "Heart Abs Integral Histogram")
   plotter.plot_hist_pyplot(l, "Heartbeat Duration Histogram")

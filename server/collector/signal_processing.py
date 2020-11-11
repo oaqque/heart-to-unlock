@@ -1,3 +1,6 @@
+import os
+FILEPATH = os.path.dirname(os.path.realpath(__file__))+"/data/"
+
 def smooth(data, alpha=0.2):
   # Data = [[v],[v],[v]]
   returnData = []
@@ -129,30 +132,36 @@ def extract_heart_beats(data, heart_indices):
         i += 1
     return heart_data
 
-def compute_abs_integral(heart_sets):
+def compute_integrals(heart_sets):
     ivals = []
+    abs_ints = []
     lengths = []
     for h_set in heart_sets:
         integral = 0
+        abs_integral = 0
         i = 0
         for val in h_set:
-            integral += abs(val)
+            abs_integral += abs(val)
+            integral += val
             i += 1
         ivals.append(integral)
+        abs_ints.append(abs_integral)
         lengths.append(i)
-    return [ivals, lengths]
+    return [ivals, abs_ints, lengths]
 
-def filterFeatures(lmin=0, lmax=100, imin=20, imax=30):
+# def filterFeatures(raw_data, lmin=0, lmax=100, imin=20, imax=30, aimin=20, aimax=30):
+def filterFeatures(raw_data, lmin=0, lmax=100, imin=0, imax=300, aimin=15, aimax=30):
   indices = []
-  [f, ints, l] = extractPrelimData()
+  [f, ints, ais, l] = extract_split_features(raw_data)
   print(len(l))
   for i in range(len(l)):
-    if l[i] > lmax or l[i] < lmin or ints[i] > imax or ints[i] < imin:
+    if l[i] > lmax or l[i] < lmin or ints[i] > imax or ints[i] < imin or ais[i] > aimax or ais[i] < aimin:
       indices.append(i)
   remove_indexes(f, indices)
   remove_indexes(ints, indices)
+  remove_indexes(ais, indices)
   remove_indexes(l, indices)
-  return [f, ints, l]
+  return [f, ints, ais, l]
 
 def remove_indexes(my_list, indexes):
   for index in sorted(indexes, reverse=True):
@@ -172,18 +181,15 @@ def getSavedData(index = 0, dir="raw/"):
       pass
   return data
 
-def extractPrelimData():
-  features = []
-  integrals = []
-  lengths = []
+def extract_split_features(raw_data, thresh=2.5):
+    data = bandFilter(raw_data)
+    [data, featureIndices] = lowPassFilter(data, thresh)
+    f = extract_heart_beats(data, featureIndices)
+    [ints, abs_ints, l] = compute_integrals(f)
+    return [f, ints, abs_ints, l]
+
+def getAllSavedData():
+  data = []
   for i in range(1, len(os.listdir(FILEPATH+"raw/"))):
-    data = bandFilter(getSavedData(i))
-    [data, featureIndices] = lowPassFilter(data, 2.5)
-    f = sp.extract_heart_beats(data, featureIndices)
-    [ints, l] = sp.compute_abs_integral(f)
-    # print(i, os.listdir(FILEPATH)[i], sum(ints)/len(ints))
-    # print(l)
-    features += f
-    integrals += ints
-    lengths += l
-  return [features, integrals, lengths]
+    data += getSavedData(i)
+  return data
