@@ -20,4 +20,7 @@
 !server/collector/data
 !features
 !raw
+!valid
+!user_1
+!user_2
 !*.csv
