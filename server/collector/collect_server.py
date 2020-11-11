@@ -9,7 +9,7 @@ from threading import Thread
 import sys
 import os
 import signal_processing as sp
-import plotter as plotter
+# import plotter as plotter
 
 UDP_TIMESYNC_PORT = 3001 # node listens for timesync packets on port 4003
 UDP_REPLY_PORT = 3000 # node listens for reply packets on port 7005
@@ -67,7 +67,7 @@ def get_samples(num=600, freq=200):
     # [[v],[v],[v]]
   # return smooth(normailised)
 
-  saveData(normailised)
+  saveData(normailised, my_dir="user_2/")
   return normailised
 
 def saveData(data, my_dir="raw/", name="data"):
@@ -95,7 +95,7 @@ if __name__ == "__main__":
   [features, integrals, abs_integrals, lengths] = sp.filterFeatures(raw_data)
   print("Filtered features length = " + str(len(integrals)))
 
-  plotter.plot_hist_pyplot(integrals, "Heart Integral Histogram")
-  plotter.plot_hist_pyplot(abs_integrals, "Heart Abs Integral Histogram")
-  plotter.plot_hist_pyplot(lengths, "Heartbeat Duration Histogram")
+  # plotter.plot_hist_pyplot(integrals, "Heart Integral Histogram")
+  # plotter.plot_hist_pyplot(abs_integrals, "Heart Abs Integral Histogram")
+  # plotter.plot_hist_pyplot(lengths, "Heartbeat Duration Histogram")
   # saveData2(f, "features/", "sample_true")
