@@ -153,7 +153,7 @@ def compute_integrals(heart_sets):
 def filterFeatures(raw_data, lmin=0, lmax=100, imin=0, imax=300, aimin=15, aimax=30):
   indices = []
   [f, ints, ais, l] = extract_split_features(raw_data)
-  print(len(l))
+  print("Unfiltered features length = " + str(len(f)))
   for i in range(len(l)):
     if l[i] > lmax or l[i] < lmin or ints[i] > imax or ints[i] < imin or ais[i] > aimax or ais[i] < aimin:
       indices.append(i)
