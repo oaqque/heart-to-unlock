@@ -1,5 +1,6 @@
 from flask import Flask, render_template
 import collector.collect_server as c
+import collector.signal_processing as sp
 # from data_streamer import iothub_client_init
 # from azure.iot.device import Message
 
@@ -35,11 +36,12 @@ def testData():
 
 @app.route('/test/data')
 def testGetData():
-    # data = c.getSavedData()
+    data = sp.getSavedData(16)
     # data = c.lowPassFilter(c.getSavedData(),2)
-    data = c.bandFilter(c.getSavedData(12))
-    [data,heartRateIndicies] = c.lowPassFilter(data, 3)
+    data = sp.bandFilter(data)
+    [data,heartRateIndicies] = sp.lowPassFilter(data, 3)
     # print(data)
+    print(heartRateIndicies)
     return str(data)
 
 # def send_to_iot(data):
