@@ -150,7 +150,8 @@ def compute_integrals(heart_sets):
     return [ivals, abs_ints, lengths]
 
 # def filterFeatures(raw_data, lmin=0, lmax=100, imin=20, imax=30, aimin=20, aimax=30):
-def filterFeatures(raw_data, lmin=0, lmax=100, imin=0, imax=300, aimin=15, aimax=30):
+# def filterFeatures(raw_data, lmin=0, lmax=100, imin=0, imax=300, aimin=15, aimax=30):
+def filterFeatures(raw_data, lmin=0, lmax=100, imin=-100, imax=300, aimin=0, aimax=1000):
   indices = []
   [f, ints, ais, l] = extract_split_features(raw_data)
   print("Unfiltered features length = " + str(len(f)))
@@ -188,8 +189,8 @@ def extract_split_features(raw_data, thresh=2.5):
     [ints, abs_ints, l] = compute_integrals(f)
     return [f, ints, abs_ints, l]
 
-def getAllSavedData():
+def getAllSavedData(dir="raw/"):
   data = []
-  for i in range(1, len(os.listdir(FILEPATH+"raw/"))):
+  for i in range(1, len(os.listdir(FILEPATH+dir))):
     data += getSavedData(i)
   return data
