@@ -91,6 +91,7 @@ def saveData2(data, my_dir="raw/", name="data"):
 if __name__ == "__main__":
   # get_samples(600,200)
   # saveData(get_samples(600,200))
+<<<<<<< HEAD
   raw_data = sp.getAllSavedData()
   # raw_data = sp.normalise(raw_data)
   [features, integrals, abs_integrals, lengths] = sp.filterFeatures(raw_data)
@@ -103,3 +104,14 @@ if __name__ == "__main__":
   # plotter.plot_hist_pyplot(abs_integrals, "Heart Abs Integral Histogram")
   # plotter.plot_hist_pyplot(lengths, "Heartbeat Duration Histogram")
   # saveData2(features, "features/", "user_1")
+=======
+  raw_data = sp.getAllSavedData("user_1/")
+  [features, integrals, abs_integrals, lengths] = sp.filterFeatures(raw_data)
+  print("Filtered features length = " + str(len(integrals)))
+  print(features)
+
+  plotter.plot_hist_pyplot(integrals, "Heart Integral Histogram")
+  plotter.plot_hist_pyplot(abs_integrals, "Heart Abs Integral Histogram")
+  plotter.plot_hist_pyplot(lengths, "Heartbeat Duration Histogram")
+  # saveData2(f, "features/", "sample_true")
+>>>>>>> 60e5420f741f06c383484ec062cc28daec43deb8

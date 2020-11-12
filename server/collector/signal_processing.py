@@ -150,7 +150,8 @@ def compute_integrals(heart_sets):
     return [ivals, abs_ints, lengths]
 
 # def filterFeatures(raw_data, lmin=0, lmax=100, imin=20, imax=30, aimin=20, aimax=30):
-def filterFeatures(raw_data, lmin=0, lmax=100, imin=0, imax=300, aimin=15, aimax=30):
+# def filterFeatures(raw_data, lmin=0, lmax=100, imin=0, imax=300, aimin=15, aimax=30):
+def filterFeatures(raw_data, lmin=0, lmax=100, imin=-100, imax=300, aimin=0, aimax=1000):
   indices = []
   [f, ints, ais, l] = extract_split_features(raw_data)
   print("Unfiltered features length = " + str(len(f)))
