@@ -36,11 +36,11 @@ def testData():
 
 @app.route('/test/data')
 def testGetData():
-    data = sp.getSavedData(32)
+    data = sp.getSavedData(16)
     # data = c.lowPassFilter(c.getSavedData(),2)
     data = sp.bandFilter(data)
     [data,heartRateIndicies] = sp.lowPassFilter(data, 3)
-    # print(data)
+    print(data)
     # print(heartRateIndicies)
     return str(data)
 
