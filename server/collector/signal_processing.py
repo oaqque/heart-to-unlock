@@ -188,8 +188,61 @@ def extract_split_features(raw_data, thresh=2.5):
     [ints, abs_ints, l] = compute_integrals(f)
     return [f, ints, abs_ints, l]
 
+def normalise(data):
+  # data = [[x], [x], [x]]
+  maximum = max(data)
+  minimum = min(data)
+  normalised = []
+  for x in data: 
+    xnew = (x - minimum) / (maximum - minimum)
+    normalised.append(xnew)
+  return normalised
+
+def normalise_mm(data, maximum, minimum):
+  # data = [[x], [x], [x]]
+  normalised = []
+  for x in data: 
+    xnew = (x - minimum) / (maximum - minimum)
+    normalised.append(xnew)
+  return normalised
+
+def normalise_features(features):
+  maximum = 0
+  minimum = 0
+  for feature in features:
+    if max(feature) > maximum:
+      maximum = max(feature)
+    else: 
+      continue
+  for feature in features:
+    if min(feature) < minimum:
+      minimum = min(feature)
+    else: 
+      continue
+  new_features = []
+  for feature in features:
+    new_feature = normalise_mm(feature, maximum, minimum)
+    new_features.append(new_feature)
+  return new_features
+
+def pad_features(features):
+  maxlen = 0
+  for feature in features:
+    if len(feature) > maxlen:
+      maxlen = len(feature)
+    else:
+      continue 
+  new_features = []
+  for feature in features:
+    new_feature = feature.copy()
+    num_to_pad = maxlen - len(feature)
+    lst = [0.0] * num_to_pad
+    new_feature.extend(lst)
+    new_features.append(new_feature)
+  return new_features
+
 def getAllSavedData():
   data = []
-  for i in range(1, len(os.listdir(FILEPATH+"raw/"))):
+  for i in range(1, len(os.listdir(FILEPATH+"user_1/"))):
     data += getSavedData(i)
   return data

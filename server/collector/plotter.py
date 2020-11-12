@@ -15,5 +15,14 @@ def plot_hist_pyplot(data, title="Histogram"):
     plt.ylim(ymax=np.ceil(maxfreq / 10) * 10 if maxfreq % 10 else maxfreq + 10)
     plt.show()
 
+def plot_array_features(dataarray):
+    for data in dataarray:
+        plt.plot(data)
+        plt.show()
+
+def plot(data):
+    plt.plot(data)
+    plt.show()
+
 # if __name__ == "__main__":
 #     plot_freq([])
