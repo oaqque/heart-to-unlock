@@ -1,20 +1,16 @@
 import os
+import numpy as np
+import scipy.signal as signal
 FILEPATH = os.path.dirname(os.path.realpath(__file__))+"/data/"
 
 def smooth(data, alpha=0.2):
   # Data = [[v],[v],[v]]
   returnData = []
-  returnData.append([data[0][0]])
-
-
-  # filtered = lowPassFilter(data)
-  filtered = data
   
-  for i, sample in enumerate(filtered):
+  for i, sample in enumerate(data):
     stprev = returnData[-1][0]
     xtprev = sample[0]
     st = stprev + alpha * (xtprev - stprev)
-    # returnData.append([filtered[i][0],st])
     returnData.append([st])
   return returnData
 
@@ -177,7 +173,7 @@ def getSavedData(index = 0, dir="raw/"):
     printedData = File.read()
   for line in printedData.split("\n"):
     try:
-      data.append([int(line)])
+      data.append(int(line))
     except ValueError:
       pass
   return data
@@ -189,15 +185,14 @@ def extract_split_features(raw_data, thresh=2.5):
     [ints, abs_ints, l] = compute_integrals(f)
     return [f, ints, abs_ints, l]
 
-def normalise(data):
-  # data = [[x], [x], [x]]
-  maximum = max(data)
-  minimum = min(data)
-  normalised = []
-  for x in data: 
-    xnew = (x - minimum) / (maximum - minimum)
-    normalised.append(xnew)
-  return normalised
+def norm(data):
+    new_data = np.array([])
+    maxr = max(data)
+    minr = min(data)
+    
+    for i, y in enumerate(data):
+        new_data = np.append(((y-minr) / (maxr - minr)), new_data)
+    return new_data
 
 def normalise_mm(data, maximum, minimum):
   # data = [[x], [x], [x]]
@@ -226,24 +221,84 @@ def normalise_features(features):
     new_features.append(new_feature)
   return new_features
 
-def pad_features(features):
-  maxlen = 0
-  for feature in features:
-    if len(feature) > maxlen:
-      maxlen = len(feature)
-    else:
-      continue 
-  new_features = []
-  for feature in features:
-    new_feature = feature.copy()
-    num_to_pad = maxlen - len(feature)
-    lst = [0.0] * num_to_pad
-    new_feature.extend(lst)
-    new_features.append(new_feature)
-  return new_features
-
-def getAllSavedData():
+def getAllSavedData(fn):
   data = []
-  for i in range(1, len(os.listdir(FILEPATH+"user_1/"))):
-    data += getSavedData(i)
+  for i in range(1, len(os.listdir(FILEPATH+fn))):
+    data.append([getSavedData(i)]) 
   return data
+
+def sigmoid(data):
+  return 1/(1+np.exp(-data))
+
+def find_peaks(data): 
+  return signal.find_peaks(data)[0]
+
+def svgolay_filter(data):
+  return signal.savgol_filter(data, 101, 5)
+
+def isNoise(new_peaks, peak, tau = 40):
+    for p in new_peaks:
+        maxr = p + tau
+        minr = p - tau
+        if minr <= peak <= maxr:
+            return True
+    return False
+
+def pad_zeros(data, maxlen = 200, pad = int(0)):
+    new_data = data.copy()
+    num_pad = maxlen - len(data)
+    for _ in range(num_pad):
+        new_data = np.append(new_data, pad)
+    return new_data
+
+def normaliseHeartbeat(heartbeat):
+    y_data = pad_zeros(norm(heartbeat))
+    return y_data
+
+def getHeartbeatFromSamples(samples):
+  heartbeats_ret = []
+  for sample in samples:
+    heartbeats = getHeartbeats(sample[0]) # <- unwrapping sample
+    for heartbeat in heartbeats:
+      heartbeats_ret.append(heartbeat)
+  print(heartbeats_ret)
+  return np.asarray(heartbeats_ret)
+
+def getHeartbeats(data, maxlen=200):
+  # Apply savgol filter
+  new_data = signal.savgol_filter(data, 51, 3)
+  new_data = signal.savgol_filter(new_data, 51, 3)
+  new_data = signal.savgol_filter(new_data, 51, 3)
+
+  peaks, _ = signal.find_peaks(new_data)
+  indices = np.argsort(new_data[peaks])
+  sorted_peaks = peaks[indices]
+
+  new_peaks = np.array([], dtype=np.int)
+  for i, peak in enumerate(sorted_peaks):
+      if peak == sorted_peaks[0]: 
+          new_peaks = np.append(new_peaks, peak)
+          continue
+      
+      if isNoise(new_peaks, peak):
+          continue
+      else:
+          new_peaks = np.append(new_peaks, peak)
+  new_peaks = np.sort(new_peaks)
+
+  heartbeats = []
+  for i, peak in enumerate(new_peaks):
+        if i == 0: continue
+        if peak > peaks[i-1]:
+            mu = peak - peaks[i-1]
+            minr = int(peak - 0.5 * mu)
+            maxr = int(peak + 1.5 * mu)
+            heartbeat = data[minr:maxr]
+            if len(heartbeat) < maxlen:
+                heartbeats.append(normaliseHeartbeat(heartbeat))
+        else:
+            continue
+  return heartbeats
+
+def saveHeartbeats(heartbeats, filepath):
+  np.savetxt(filepath, heartbeats, delimiter=',')

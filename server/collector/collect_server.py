@@ -10,6 +10,8 @@ import sys
 import os
 import signal_processing as sp
 import plotter as plotter
+import numpy as np
+import pandas as pd
 
 UDP_TIMESYNC_PORT = 3001 # node listens for timesync packets on port 4003
 UDP_REPLY_PORT = 3000 # node listens for reply packets on port 7005
@@ -89,14 +91,15 @@ def saveData2(data, my_dir="raw/", name="data"):
     file.write(dataString)
 
 if __name__ == "__main__":
-  # get_samples(600,200)
-  # saveData(get_samples(600,200))
-  raw_data = sp.getAllSavedData("user_1/")
-  [features, integrals, abs_integrals, lengths] = sp.filterFeatures(raw_data)
-  print("Filtered features length = " + str(len(integrals)))
-  print(features)
+  raw_data_samples = sp.getAllSavedData("user_1/")
+  print(f"{len(raw_data_samples)} samples collected")
+  # [features, integrals, abs_integrals, lengths] = sp.filterFeatures(raw_data)
+  # print("Filtered features length = " + str(len(integrals)))
+  heartbeats = sp.getHeartbeatFromSamples(raw_data_samples)
+  print(f"Shape of heartbeat return: {heartbeats.shape}")
+  sp.saveHeartbeats(heartbeats, "./data/features/sample_false.csv")
 
-  plotter.plot_hist_pyplot(integrals, "Heart Integral Histogram")
-  plotter.plot_hist_pyplot(abs_integrals, "Heart Abs Integral Histogram")
-  plotter.plot_hist_pyplot(lengths, "Heartbeat Duration Histogram")
+  # plotter.plot_hist_pyplot(integrals, "Heart Integral Histogram")
+  # plotter.plot_hist_pyplot(abs_integrals, "Heart Abs Integral Histogram")
+  # plotter.plot_hist_pyplot(lengths, "Heartbeat Duration Histogram")
   # saveData2(f, "features/", "sample_true")
