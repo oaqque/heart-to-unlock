@@ -92,7 +92,9 @@ def saveData2(data, my_dir="raw/", name="data"):
 
 if __name__ == "__main__":
   raw_data_samples = sp.getAllSavedData("user_1/")
-  print(f"{len(raw_data_samples)} samples collected")
+  print('Raw')
+  print(raw_data_samples)
+  #print(f"{len(raw_data_samples)} samples collected")
   # [features, integrals, abs_integrals, lengths] = sp.filterFeatures(raw_data)
   # print("Filtered features length = " + str(len(integrals)))
   heartbeats = sp.getHeartbeatFromSamples(raw_data_samples)

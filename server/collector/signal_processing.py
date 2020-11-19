@@ -164,7 +164,7 @@ def remove_indexes(my_list, indexes):
   for index in sorted(indexes, reverse=True):
     del my_list[index]
 
-def getSavedData(index = 0, dir="raw/"):
+def getSavedData(index = 0, dir="user_1/"):
   # for filename in os.listdir(FILEPATH):
   path = FILEPATH+dir
   filename = os.listdir(path)[index]
@@ -261,7 +261,7 @@ def getHeartbeatFromSamples(samples):
     heartbeats = getHeartbeats(sample[0]) # <- unwrapping sample
     for heartbeat in heartbeats:
       heartbeats_ret.append(heartbeat)
-  print(heartbeats_ret)
+  #print(heartbeats_ret)
   return np.asarray(heartbeats_ret)
 
 def getHeartbeats(data, maxlen=200):
