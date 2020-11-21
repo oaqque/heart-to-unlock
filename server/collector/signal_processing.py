@@ -244,7 +244,7 @@ def getAllSavedData(fn):
   Returns a list of samples [[sample],[sample],[sample]]
   """
   data = []
-  for i in range(1, len(os.listdir(FILEPATH+fn))):
+  for i in range(1, len(os.listdir(FILEPATH+fn+'/'))):
     data.append([getSavedData(i)]) 
   return data
 
@@ -333,6 +333,7 @@ def getHeartbeats(data, maxlen=200):
             continue
   return heartbeats
 
-def saveHeartbeats(heartbeats, filepath):
+def saveHeartbeats(heartbeats, filename):
   """Save heartbeats to filepath"""
+  filepath = './data/features/' + filename + '.csv'
   np.savetxt(filepath, heartbeats, delimiter=',')

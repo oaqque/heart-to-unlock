@@ -85,12 +85,12 @@ def saveData2(data, my_dir="raw/", name="data"):
   for d in data:
     dataString += str(d) + "\n"
   dataString.strip("\n")
-  with open(FILEPATH+my_dir+filename, 'w') as file:
+  with open(FILEPATH+my_dir+'/'+filename, 'w') as file:
     file.write(dataString)
 
 if __name__ == "__main__":
   raw_data_samples = sp.getAllSavedData("user_1/")
   heartbeats = sp.getHeartbeatFromSamples(raw_data_samples)
   print(f"Shape of heartbeat return: {heartbeats.shape}")
-  sp.saveHeartbeats(heartbeats, "./data/features/sample_false.csv")
+  sp.saveHeartbeats(heartbeats, "sample_false")
 

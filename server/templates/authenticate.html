@@ -1,25 +1,25 @@
 <html>
 <head>
-   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-   <script type="text/javascript">
-function  Search() {
-    $.ajax({
-    	type: "GET",
-      	url: "http://localhost:5000/authenticate/user"
-    
-    }).done(function(data) {
-      console.log('Successfully done')
-      console.log(data)
-      if(data["is_success"]==true){
-
-		document.getElementById("status").innerHTML="Successful Authentication Done"; 
-      }
-      else{
-			document.getElementById("status").innerHTML="Not authenticated"; 
-      }
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script type="text/javascript">
+  function  Search() {
+      $.ajax({
+        type: "GET",
+          url: "http://localhost:5000/authenticate/sample_false"
       
-    });
-}
+      }).done(function(data) {
+        console.log('Successfully done')
+        console.log(data)
+        if(data["is_success"]==true){
+
+      document.getElementById("status").innerHTML="Successful Authentication Done"; 
+        }
+        else{
+        document.getElementById("status").innerHTML="Not authenticated"; 
+        }
+        
+      });
+  }
 </script>
 </head>
 <body>

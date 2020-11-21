@@ -15,16 +15,21 @@ app = Flask(__name__)
 # client = iothub_client_init()
 # MSG_TXT = '{{"acceleration": {acceleration}}}'
 
-@app.route('/data')
-def getData():
-    # Send data to cloud IoT as well
-    data = c.get_samples(1200, 200)
-    data = sp.bandFilter(data)
-    [data,heartRateIndicies] = sp.lowPassFilter(data, 3)
-    # data = [[s], [s], [s], [s]]
-    
-    # send_to_iot(data)
+@app.route('/collect/<directory>')
+def getData(directory):
+    """Collects and saves raw data and heartbeat features
 
+    Raw data samples saved in data/directory
+    Heartbeat feature vectors aved in data/features/directory.csv
+    """
+    # Save raw data
+    data = c.get_samples(1200, 200)
+    c.saveData2(data, my_dir=directory)
+    
+    # Get raw data and transform into heartbeat features
+    raw_data_samples = sp.getAllSavedData(directory)
+    heartbeats = sp.getHeartbeatFromSamples(raw_data_samples)
+    sp.saveHeartbeats(heartbeats, directory)
     return str(data)
 
 @app.route('/main')
@@ -44,10 +49,15 @@ def testData():
 def auth_user():
     return render_template('authenticate.html')
 
-@app.route('/authenticate/user')
-def authenticate_sample_user():
-    sample_user = pd.read_csv('collector/data/features/sample_false.csv') #Load extracted features of the user
+@app.route('/authenticate/<sample>')
+def authenticate_sample_user(sample):
+    # Define path to sample and model
+    dir_path = "collector/data/features/"
+    path = dir_path + sample + '.csv'
     model_path = 'collector/data/model/auth_model.pkl' #load the trained model
+
+    # Load extracted features of user
+    sample_user = pd.read_csv(path)
     matrix = joblib.load(model_path)
     pred = Counter(list(matrix.predict(sample_user))) #Get frequency of every predicted class
 
@@ -61,18 +71,9 @@ def authenticate_sample_user():
 @app.route('/test/data')
 def testGetData():
     data = sp.getSavedData(16)
-    # data = c.lowPassFilter(c.getSavedData(),2)
-    data = sp.bandFilter(data)
-    [data,heartRateIndicies] = sp.lowPassFilter(data, 3)
+    [data,_] = sp.lowPassFilter(data, 3)
     print(data)
-    # print(heartRateIndicies)
     return str(data)
-
-# def send_to_iot(data):
-#     for sample in data: 
-#         msg_txt_formatted = MSG_TXT.format(acceleration=sample[0])
-#         message = Message(msg_txt_formatted)
-#         client.send_message(message)
 
 if __name__ == '__main__':
     app.run(debug=True)
