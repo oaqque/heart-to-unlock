@@ -1,6 +1,11 @@
 from flask import Flask, render_template
 import collector.collect_server as c
 import collector.signal_processing as sp
+import pandas as pd
+import pickle
+import joblib
+from flask import Response, jsonify, make_response
+from collections import Counter
 # from data_streamer import iothub_client_init
 # from azure.iot.device import Message
 
@@ -33,6 +38,25 @@ def welcome():
 @app.route('/')
 def testData():
     return render_template('signalProcessing.html')
+
+
+@app.route('/auth/user')
+def auth_user():
+    return render_template('authenticate.html')
+
+@app.route('/authenticate/user')
+def authenticate_sample_user():
+    sample_user = pd.read_csv('collector/data/features/sample_false.csv') #Load extracted features of the user
+    model_path = 'collector/data/model/auth_model.pkl' #load the trained model
+    matrix = joblib.load(model_path)
+    pred = Counter(list(matrix.predict(sample_user))) #Get frequency of every predicted class
+
+    authentication_status = pred.most_common(1)[0][0] #Find mode of the predictions. Uses majority voting strategy
+    
+    if authentication_status==1:
+        return make_response(jsonify({"is_success":True}), 200)
+    else:
+        return make_response(jsonify({"is_success":False}), 200)
 
 @app.route('/test/data')
 def testGetData():
