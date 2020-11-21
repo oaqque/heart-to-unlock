@@ -262,12 +262,12 @@ def svgolay_filter(data):
 
 def isNoise(new_peaks, peak, tau = 40):
   """Determines if a peak already exists within +-tau in new_peaks"""
-    for p in new_peaks:
-        maxr = p + tau
-        minr = p - tau
-        if minr <= peak <= maxr:
-            return True
-    return False
+  for p in new_peaks:
+      maxr = p + tau
+      minr = p - tau
+      if minr <= peak <= maxr:
+          return True
+  return False
 
 def pad_zeros(data, maxlen = 200, pad = int(0)):
   """Pads input data to maxlen
@@ -276,16 +276,16 @@ def pad_zeros(data, maxlen = 200, pad = int(0)):
   pad defaults to 0
   Makes a copy of the input data and returns the copy
   """
-    new_data = data.copy()
-    num_pad = maxlen - len(data)
-    for _ in range(num_pad):
-        new_data = np.append(new_data, pad)
-    return new_data
+  new_data = data.copy()
+  num_pad = maxlen - len(data)
+  for _ in range(num_pad):
+      new_data = np.append(new_data, pad)
+  return new_data
 
 def normaliseHeartbeat(heartbeat):
   """Normalise and pad heartbeat samples"""
-    y_data = pad_zeros(norm(heartbeat))
-    return y_data
+  y_data = pad_zeros(norm(heartbeat))
+  return y_data
 
 def getHeartbeatFromSamples(samples):
   """Returns all heartbeats from a list of samples"""

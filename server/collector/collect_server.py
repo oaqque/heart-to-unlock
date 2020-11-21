@@ -10,8 +10,8 @@ import os
 from threading import Thread
 
 # Local packages
-import signal_processing as sp
-import plotter as plotter
+from . import signal_processing as sp
+from . import plotter as plotter
 
 # Python packages
 import numpy as np
