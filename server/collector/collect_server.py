@@ -1,15 +1,19 @@
 #!/usr/bin/python
 
+# Python Standard Libraries
 import socket
 import time
 import datetime
 import struct
-# import StringIO
-from threading import Thread
 import sys
 import os
+from threading import Thread
+
+# Local packages
 import signal_processing as sp
 import plotter as plotter
+
+# Python packages
 import numpy as np
 import pandas as pd
 
@@ -38,7 +42,6 @@ def udpListenThread(num=600, freq=200):
   while 1:
     try:
       chunk, addr = rcvSocket.recvfrom( 1024 )
-      # print(chunk)
       if "End of data" in chunk:
         break
       else:
@@ -54,9 +57,8 @@ def udpSend(num=600, freq=200):
   sock.sendto(string, (SENSORTAG2_ADDR, UDP_TIMESYNC_PORT))
 
 def get_samples(num=600, freq=200):
-  data = udpListenThread(num, freq) #.replace("(","[").replace(")","]").replace("\n\r",",")
+  data = udpListenThread(num, freq)   
   # (x,y,z)\n\r
-  #
   normailised = []
 
   tuples = data.strip("\n\r").split("\n\r")
@@ -64,10 +66,6 @@ def get_samples(num=600, freq=200):
     d = t.strip("(").strip(")")
     split = d.split(",")
     normailised.append([int(split[2])])
-    # normailised.append([int(split[0]), int(split[2])])
-    # normailised.append([int(split[0]) + int(split[2])])
-    # [[v],[v],[v]]
-  # return smooth(normailised)
 
   saveData(normailised, my_dir="user_2/")
   return normailised
@@ -92,16 +90,7 @@ def saveData2(data, my_dir="raw/", name="data"):
 
 if __name__ == "__main__":
   raw_data_samples = sp.getAllSavedData("user_1/")
-  print('Raw')
-  print(raw_data_samples)
-  #print(f"{len(raw_data_samples)} samples collected")
-  # [features, integrals, abs_integrals, lengths] = sp.filterFeatures(raw_data)
-  # print("Filtered features length = " + str(len(integrals)))
   heartbeats = sp.getHeartbeatFromSamples(raw_data_samples)
   print(f"Shape of heartbeat return: {heartbeats.shape}")
   sp.saveHeartbeats(heartbeats, "./data/features/sample_false.csv")
 
-  # plotter.plot_hist_pyplot(integrals, "Heart Integral Histogram")
-  # plotter.plot_hist_pyplot(abs_integrals, "Heart Abs Integral Histogram")
-  # plotter.plot_hist_pyplot(lengths, "Heartbeat Duration Histogram")
-  # saveData2(f, "features/", "sample_true")
