@@ -3,7 +3,13 @@ import numpy as np
 import scipy.signal as signal
 FILEPATH = os.path.dirname(os.path.realpath(__file__))+"/data/"
 
-def smooth(data, alpha=0.2):
+def smooth(data: list, alpha=0.2):
+  """A moving average smoothing algorithm
+
+  Data takes input of the following [[v], [v], [v], [v]]
+  Returns a smooth signal of the same format.
+  """
+
   # Data = [[v],[v],[v]]
   returnData = []
   
@@ -15,6 +21,12 @@ def smooth(data, alpha=0.2):
   return returnData
 
 def bandFilter(data, windowSize=100):
+  """Applies a bandfilter on signal
+
+  Data takes input of the following [[v], [v], [v], [v]]
+  Returns a signal of the same format.
+  """
+
   returnData = []
   window = []
   tot = 0.0
@@ -43,6 +55,11 @@ def bandFilter(data, windowSize=100):
   return returnData
 
 def lowPassFilter(data, filterVal=2):
+  """Applies a low pass filter on signal
+
+  Data takes input of the following [[v], [v], [v], [v]]
+  """
+
   filtered = []
   i = 0
   sections = []
@@ -145,8 +162,6 @@ def compute_integrals(heart_sets):
         lengths.append(i)
     return [ivals, abs_ints, lengths]
 
-# def filterFeatures(raw_data, lmin=0, lmax=100, imin=20, imax=30, aimin=20, aimax=30):
-# def filterFeatures(raw_data, lmin=0, lmax=100, imin=0, imax=300, aimin=15, aimax=30):
 def filterFeatures(raw_data, lmin=0, lmax=100, imin=-100, imax=300, aimin=0, aimax=1000):
   indices = []
   [f, ints, ais, l] = extract_split_features(raw_data)
@@ -186,6 +201,8 @@ def extract_split_features(raw_data, thresh=2.5):
     return [f, ints, abs_ints, l]
 
 def norm(data):
+    """Normalises a signal so that the amplitude will lie between 0 and 1"""
+
     new_data = np.array([])
     maxr = max(data)
     minr = min(data)
@@ -222,21 +239,29 @@ def normalise_features(features):
   return new_features
 
 def getAllSavedData(fn):
+  """Retrieves all samples in the folder FILEPATH + fn
+
+  Returns a list of samples [[sample],[sample],[sample]]
+  """
   data = []
   for i in range(1, len(os.listdir(FILEPATH+fn))):
     data.append([getSavedData(i)]) 
   return data
 
 def sigmoid(data):
+  """Applied a sigmoid to the input data"""
   return 1/(1+np.exp(-data))
 
 def find_peaks(data): 
+  """Return the indexes of the peaks of a signal"""
   return signal.find_peaks(data)[0]
 
 def svgolay_filter(data):
+  """Applies a Savitsky-Golay filter to the input signal"""
   return signal.savgol_filter(data, 101, 5)
 
 def isNoise(new_peaks, peak, tau = 40):
+  """Determines if a peak already exists within +-tau in new_peaks"""
     for p in new_peaks:
         maxr = p + tau
         minr = p - tau
@@ -245,6 +270,12 @@ def isNoise(new_peaks, peak, tau = 40):
     return False
 
 def pad_zeros(data, maxlen = 200, pad = int(0)):
+  """Pads input data to maxlen
+
+  maxlen defaults to 200
+  pad defaults to 0
+  Makes a copy of the input data and returns the copy
+  """
     new_data = data.copy()
     num_pad = maxlen - len(data)
     for _ in range(num_pad):
@@ -252,19 +283,21 @@ def pad_zeros(data, maxlen = 200, pad = int(0)):
     return new_data
 
 def normaliseHeartbeat(heartbeat):
+  """Normalise and pad heartbeat samples"""
     y_data = pad_zeros(norm(heartbeat))
     return y_data
 
 def getHeartbeatFromSamples(samples):
+  """Returns all heartbeats from a list of samples"""
   heartbeats_ret = []
   for sample in samples:
     heartbeats = getHeartbeats(sample[0]) # <- unwrapping sample
     for heartbeat in heartbeats:
       heartbeats_ret.append(heartbeat)
-  #print(heartbeats_ret)
   return np.asarray(heartbeats_ret)
 
 def getHeartbeats(data, maxlen=200):
+  """Returns all heartbeats from a single sample"""
   # Apply savgol filter
   new_data = signal.savgol_filter(data, 51, 3)
   new_data = signal.savgol_filter(new_data, 51, 3)
@@ -301,4 +334,5 @@ def getHeartbeats(data, maxlen=200):
   return heartbeats
 
 def saveHeartbeats(heartbeats, filepath):
+  """Save heartbeats to filepath"""
   np.savetxt(filepath, heartbeats, delimiter=',')
