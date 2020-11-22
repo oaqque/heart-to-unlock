@@ -4,4 +4,22 @@ We have chosen to use Contiki OS and the TI SensorTag 2650 as our chosen hardwar
 
 # Setup
 
-In order to configure the server to connect to Azure IoT Hub, use `config.py.example` as a template for entering your API keys. Remove the `.example` extension to use the config file in your code. 
+You would require two SensorTags to run this project.
+
+Program udp-server.c file in one of the sensortags by navigating to the sensortag-sampler directory. 
+
+Program RPL Border Router in another sensortag. 
+
+Navigate to collect_server.py file in /server/collector directory. 
+
+Change the SENSORTAG2_ADDR tothe IPV6 address of the sensortag running UDP Server. 
+
+Please ensure you have Python3 installed on your system. Then install the dependencies by running pip3 install requirements.txt
+
+In the server directory, run the following command in the terminal: export FLASK_APP = server.py
+
+Run the following command in the terminal: flask run
+
+Navigate to http://localhost:5000/collect/true to collect data for an actual user and train the model. 
+
+Navigate to http://localhost:5000/authenticate/true to authenticate that user. 
