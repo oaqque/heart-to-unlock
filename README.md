@@ -14,11 +14,11 @@ Navigate to collect_server.py file in /server/collector directory.
 
 Change the SENSORTAG2_ADDR tothe IPV6 address of the sensortag running UDP Server. 
 
-Please ensure you have Python3 installed on your system. Then install the dependencies by running pip3 install requirements.txt
+Please ensure you have Python3 installed on your system. Then install the dependencies by running `pip3 install -r requirements.txt`
 
-In the server directory, run the following command in the terminal: export FLASK_APP = server.py
+In the server directory, run the following command in the terminal: `export FLASK_APP = server.py`
 
-Run the following command in the terminal: flask run
+Run the following command in the terminal: `flask run`
 
 Navigate to http://localhost:5000/collect/true to collect data for an actual user and train the model. 
 
